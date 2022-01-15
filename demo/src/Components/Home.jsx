@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getData, uploadData } from '../Utils/helper';
 import Card from './Card';
 
 const data = [
@@ -19,12 +21,18 @@ const data = [
 	},
 ];
 
-const Home = ({ handleRoute, totalCount, handleTotal }) => {
+const Home = () => {
+	const [totalCount, setTotalCount] = useState(0);
+
+	useEffect(() => {
+		setTotalCount(getData('total') || 0);
+	}, []);
+
 	const handleAdd = (id, name, img) => {
-		let initState = JSON.parse(localStorage.getItem('test')) || [];
-		let total = JSON.parse(localStorage.getItem('total')) || 0;
-		handleTotal(total);
-		localStorage.setItem('total', JSON.stringify(+total + 1));
+		let initState = getData('demo') || [];
+		let total = getData('total') || 0;
+		uploadData('total', total + 1);
+		setTotalCount(total + 1);
 		let temp = initState.find((item) => item.id === id);
 
 		if (temp) {
@@ -45,15 +53,15 @@ const Home = ({ handleRoute, totalCount, handleTotal }) => {
 			});
 		}
 
-		localStorage.setItem('test', JSON.stringify(initState));
+		uploadData('demo', initState);
 	};
 
 	return (
 		<div>
-			<h1 onClick={handleRoute}>
-				Total items in cart : {totalCount}
-			</h1>
-			<div>
+			<Link className='link' to='/cart'>
+				<h1>Total items in cart : {totalCount}</h1>
+			</Link>
+			<div style={{ display: 'flex' }}>
 				{data?.map((item) => (
 					<Card {...item} handleAdd={handleAdd} />
 				))}
